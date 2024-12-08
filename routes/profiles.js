@@ -1,7 +1,7 @@
 const Profile = require("../models/profile");
 
 module.exports = function (router) {
-  const route = router.route("/profiles");
+  const route = router.route("/profile");
 
   /**
    * POST /api/profile
