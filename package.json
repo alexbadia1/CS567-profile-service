@@ -6,7 +6,7 @@
     "Alex Badia <abadia2@illinois.edu>"
   ],
   "scripts": {
-    "start": "nodemon --exec node server.js"
+    "start": "nodemon --exec node index.js"
   },
   "dependencies": {
     "body-parser": "^1.17.2",
