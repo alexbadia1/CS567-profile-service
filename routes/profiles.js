@@ -32,12 +32,12 @@ module.exports = function (router) {
       politicalAffiliation: req?.body?.politicalAffiliation,
     });
 
-    const err = newProfile.validateSync();
+    const validationError = newProfile.validateSync();
 
-    if (err) {
+    if (validationError) {
       res.status(400).json({ 
         message: 'Failed to create profile!',
-        error: err 
+        error: validationError 
       });
       return;
     }
@@ -52,6 +52,7 @@ module.exports = function (router) {
           data: {
             email: existingProfile.email,
             politicalAffiliation: existingProfile.politicalAffiliation,
+            survey: existingProfile?.survey,
           } 
         });
         return;
@@ -63,6 +64,7 @@ module.exports = function (router) {
         data: {
           email: savedProfile.email,
           politicalAffiliation: savedProfile.politicalAffiliation,
+          survey: existingProfile?.survey,
         } 
       });
     } catch (err) {
@@ -97,6 +99,7 @@ module.exports = function (router) {
         data: {
           email: profile.email,
           politicalAffiliation: profile.politicalAffiliation,
+          survey: profile?.survey,
         } 
       });
     } catch (err) {
@@ -130,32 +133,31 @@ module.exports = function (router) {
   route.put(async function (req, res) {
     const firebaseUid = req?.firebaseUser?.uid;
 
-    const newProfile = new Profile({
-      firebaseUid: firebaseUid,
-      email: req?.body?.email,
-      politicalAffiliation: req?.body?.politicalAffiliation,
-    });
-    const err = newProfile.validateSync();
-
-    if (err) {
-      res.status(400).json({ 
-        message: 'Failed to update profile!',
-        error: err 
-      });
-      return;
-    }
-
     try {
       const filter = { firebaseUid: firebaseUid };
-      const updatedProfile = await Profile.findOneAndUpdate(filter, {
-        email: req?.body?.email,
-        politicalAffiliation: req?.body?.politicalAffiliation,
-      }, { new: true });
+      const update = {};
+
+      if (req.body.email) {
+        update.email = req.body.email;
+      }
+
+      if (req.body.politicalAffiliation) {
+        update.politicalAffiliation = req.body.politicalAffiliation;
+      }
+
+      if (req.body.survey) {
+        for (const [key, value] of Object.entries(req.body.survey)) {
+          update[`survey.${key}`] = value;
+        }
+      }
+
+      const updatedProfile = await Profile.findOneAndUpdate(filter, update, { new: true });
       res.status(200).json({ 
         message: 'Successfuly updated profile!',
         data: {
           email: updatedProfile.email,
           politicalAffiliation: updatedProfile.politicalAffiliation,
+          survey: updatedProfile?.survey,
         } 
       });
     } catch (err) {
@@ -191,6 +193,7 @@ module.exports = function (router) {
         data: {
           email: deletedProfile.email,
           politicalAffiliation: deletedProfile.politicalAffiliation,
+          survey: deletedProfile?.survey,
         } 
       });
     } catch (err) {
