@@ -10,7 +10,8 @@ module.exports = function (router) {
    * 
    * Request:
    *  {
-   *   "politicalAffiliation": "Independent",
+   *    "firebaseUid": "1234567890",
+   *    "politicalAffiliation": "Independent",
    *  }
    *
    * Response:
@@ -23,7 +24,7 @@ module.exports = function (router) {
    *   }
    */
   route.post(async function (req, res) {
-    const firebaseUid = req?.firebaseUser?.uid;
+    const firebaseUid = req?.body?.firebaseUid ?? req?.firebaseUser?.uid;
     const email = req?.firebaseUser?.email;
 
     const newProfile = new Profile({
